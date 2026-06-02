@@ -1,0 +1,32 @@
+schema: xgc2.product.v1
+id: xgc2-ros1-utils
+name: XGC2 ROS1 Utils
+kind: ros1-apt
+summary: ROS1-coupled runtime, scheduling, topic, and control utility helpers for XGC2 controllers.
+
+ros:
+  distro: noetic
+  packages:
+    - ros1_utils
+
+apt:
+  distribution: focal
+  install:
+    - ros-noetic-xgc2-ros1-utils
+  packages:
+    - ros-noetic-xgc2-ros1-utils
+
+usage:
+  install: |
+    sudo apt update
+    sudo apt install ros-noetic-xgc2-ros1-utils
+  smoke_test: |
+    rospack find ros1_utils
+
+ownership:
+  paths:
+    - /opt/ros/noetic/share/ros1_utils
+    - /opt/ros/noetic/include/ros1_utils
+    - /opt/ros/noetic/include/controller_runtime
+    - /opt/ros/noetic/include/control_utils
+    - /opt/ros/noetic/lib/libros1_utils_ugv_identification.so
