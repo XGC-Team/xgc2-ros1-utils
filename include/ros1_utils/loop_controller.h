@@ -20,7 +20,7 @@ struct LoopControllerOptions {
 class LoopController {
 public:
     explicit LoopController(LoopControllerOptions options = LoopControllerOptions())
-        : options_(options) {
+        : options_(std::move(options)) {
         if (options_.frequency_hz <= 0.0) {
             options_.frequency_hz = 500.0;
         }
@@ -35,7 +35,7 @@ public:
     void requestStop() { stop_requested_.store(true); }
     bool stopRequested() const { return stop_requested_.load(); }
 
-    template<typename TickCallback, typename AfterTickCallback>
+    template <typename TickCallback, typename AfterTickCallback>
     void run(TickCallback&& tick, AfterTickCallback&& after_tick) {
         stop_requested_.store(false);
         while (ros::ok() && !stop_requested_.load()) {
@@ -55,8 +55,7 @@ public:
         }
     }
 
-    template<typename TickCallback>
-    void run(TickCallback&& tick) {
+    template <typename TickCallback> void run(TickCallback&& tick) {
         run(std::forward<TickCallback>(tick), [] {});
     }
 
@@ -76,8 +75,7 @@ private:
         if (last_overrun_warning_.isZero() ||
             (now - last_overrun_warning_).toSec() >= options_.overrun_warn_period_s) {
             ROS_WARN("[LoopController] loop overrun: target %.1f Hz, elapsed %.3f ms",
-                     options_.frequency_hz,
-                     elapsed.count() * 1000.0);
+                     options_.frequency_hz, elapsed.count() * 1000.0);
             last_overrun_warning_ = now;
         }
     }
@@ -90,14 +88,12 @@ private:
 
 class PeriodicGate {
 public:
-    explicit PeriodicGate(double period_s = 0.0)
-        : period_s_(std::max(0.0, period_s)) {}
+    explicit PeriodicGate(double period_s = 0.0) : period_s_(std::max(0.0, period_s)) {}
 
     void setPeriod(double period_s) { period_s_ = std::max(0.0, period_s); }
 
     bool ready(const ros::Time& now) const {
-        return last_run_.isZero() || period_s_ <= 0.0 ||
-               (now - last_run_).toSec() >= period_s_;
+        return last_run_.isZero() || period_s_ <= 0.0 || (now - last_run_).toSec() >= period_s_;
     }
 
     void markRun(const ros::Time& now) { last_run_ = now; }
@@ -110,16 +106,13 @@ private:
 
 class DirtyPeriodicGate {
 public:
-    explicit DirtyPeriodicGate(double period_s = 0.0)
-        : periodic_(period_s) {}
+    explicit DirtyPeriodicGate(double period_s = 0.0) : periodic_(period_s) {}
 
     void setPeriod(double period_s) { periodic_.setPeriod(period_s); }
     void markDirty() { dirty_ = true; }
     void clearDirty() { dirty_ = false; }
 
-    bool ready(const ros::Time& now) const {
-        return dirty_ || periodic_.ready(now);
-    }
+    bool ready(const ros::Time& now) const { return dirty_ || periodic_.ready(now); }
 
     void markRun(const ros::Time& now) {
         periodic_.markRun(now);

@@ -51,10 +51,7 @@ struct TaskDecision {
 
 class TaskGate {
 public:
-    explicit TaskGate(TaskSpec spec = TaskSpec())
-        : spec_(std::move(spec)) {
-        normalize();
-    }
+    explicit TaskGate(TaskSpec spec = TaskSpec()) : spec_(std::move(spec)) { normalize(); }
 
     const TaskSpec& spec() const { return spec_; }
     void setSpec(TaskSpec spec) {
@@ -79,16 +76,14 @@ public:
 
         const double elapsed = *now - *last_run_s_;
         constexpr double kTimeEpsilon = 1e-9;
-        const bool period_due = spec_.period_s <= 0.0 ||
-                                elapsed + kTimeEpsilon >= spec_.period_s;
+        const bool period_due = spec_.period_s <= 0.0 || elapsed + kTimeEpsilon >= spec_.period_s;
         if (period_due) {
             decision.due = true;
             decision.due_reason = DueReason::Period;
             return decision;
         }
 
-        const bool dirty_due = spec_.run_on_dirty &&
-                               dirtyMatches(dirty) &&
+        const bool dirty_due = spec_.run_on_dirty && dirtyMatches(dirty) &&
                                elapsed + kTimeEpsilon >= spec_.min_period_s;
         if (dirty_due) {
             decision.due = true;
@@ -152,28 +147,28 @@ private:
 
 inline const char* toString(DueReason reason) {
     switch (reason) {
-        case DueReason::None:
-            return "none";
-        case DueReason::FirstRun:
-            return "first_run";
-        case DueReason::Period:
-            return "period";
-        case DueReason::Dirty:
-            return "dirty";
+    case DueReason::None:
+        return "none";
+    case DueReason::FirstRun:
+        return "first_run";
+    case DueReason::Period:
+        return "period";
+    case DueReason::Dirty:
+        return "dirty";
     }
     return "unknown";
 }
 
 inline const char* toString(SkipReason reason) {
     switch (reason) {
-        case SkipReason::None:
-            return "none";
-        case SkipReason::NotDue:
-            return "not_due";
-        case SkipReason::RosClockInvalid:
-            return "ros_clock_invalid";
-        case SkipReason::StateDisabled:
-            return "state_disabled";
+    case SkipReason::None:
+        return "none";
+    case SkipReason::NotDue:
+        return "not_due";
+    case SkipReason::RosClockInvalid:
+        return "ros_clock_invalid";
+    case SkipReason::StateDisabled:
+        return "state_disabled";
     }
     return "unknown";
 }

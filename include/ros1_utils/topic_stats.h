@@ -134,8 +134,7 @@ private:
     };
 
 public:
-    explicit TopicStatsManager(ros::NodeHandle& nh)
-        : nh_(nh) {
+    explicit TopicStatsManager(ros::NodeHandle& nh) : nh_(nh) {
         topics_.reserve(20);
         ROS_INFO("[TopicStatsManager] Initialized (timers not started yet)");
     }
@@ -146,12 +145,10 @@ public:
             return;
         }
 
-        stats_timer_ = nh_.createTimer(ros::Duration(0.1),
-                                       &TopicStatsManager::updateAllStats,
-                                       this);
-        heartbeat_timer_ = nh_.createTimer(ros::Duration(1.0),
-                                           &TopicStatsManager::checkAllHeartbeats,
-                                           this);
+        stats_timer_ =
+            nh_.createTimer(ros::Duration(0.1), &TopicStatsManager::updateAllStats, this);
+        heartbeat_timer_ =
+            nh_.createTimer(ros::Duration(1.0), &TopicStatsManager::checkAllHeartbeats, this);
 
         registration_enabled_ = false;
 
@@ -209,8 +206,7 @@ public:
 
             if (was_active && !reg.stats_output->is_active) {
                 ROS_WARN("[TopicStatsManager] Topic %s timeout detected (%.2fs since last message)",
-                         reg.name.c_str(),
-                         time_since_last);
+                         reg.name.c_str(), time_since_last);
             } else if (!was_active && reg.stats_output->is_active) {
                 ROS_INFO("[TopicStatsManager] Topic %s resumed (receiving messages again)",
                          reg.name.c_str());
@@ -239,37 +235,28 @@ public:
         return std::sqrt(variance);
     }
 
-    template<typename MessageType, typename ClassType>
-    void register_topic(ros::NodeHandle& nh,
-                        const std::string& topic,
-                        uint32_t queue_size,
+    template <typename MessageType, typename ClassType>
+    void register_topic(ros::NodeHandle& nh, const std::string& topic, uint32_t queue_size,
                         void (ClassType::*callback)(const typename MessageType::ConstPtr&),
-                        ClassType* obj,
-                        TopicStats* stats_output) {
-        registerTopicImpl<MessageType, ClassType>(
-            nh, topic, queue_size, callback, obj, stats_output, nullptr);
+                        ClassType* obj, TopicStats* stats_output) {
+        registerTopicImpl<MessageType, ClassType>(nh, topic, queue_size, callback, obj,
+                                                  stats_output, nullptr);
     }
 
-    template<typename MessageType, typename ClassType>
-    void register_topic(ros::NodeHandle& nh,
-                        const std::string& topic,
-                        uint32_t queue_size,
+    template <typename MessageType, typename ClassType>
+    void register_topic(ros::NodeHandle& nh, const std::string& topic, uint32_t queue_size,
                         void (ClassType::*callback)(const typename MessageType::ConstPtr&),
-                        ClassType* obj,
-                        TopicStats* stats_output,
+                        ClassType* obj, TopicStats* stats_output,
                         PositionQualityStats* quality_output) {
-        registerTopicImpl<MessageType, ClassType>(
-            nh, topic, queue_size, callback, obj, stats_output, quality_output);
+        registerTopicImpl<MessageType, ClassType>(nh, topic, queue_size, callback, obj,
+                                                  stats_output, quality_output);
     }
 
 private:
-    template<typename MessageType, typename ClassType>
-    void registerTopicImpl(ros::NodeHandle& nh,
-                           const std::string& topic,
-                           uint32_t queue_size,
+    template <typename MessageType, typename ClassType>
+    void registerTopicImpl(ros::NodeHandle& nh, const std::string& topic, uint32_t queue_size,
                            void (ClassType::*callback)(const typename MessageType::ConstPtr&),
-                           ClassType* obj,
-                           TopicStats* stats_output,
+                           ClassType* obj, TopicStats* stats_output,
                            PositionQualityStats* quality_output) {
         if (!registration_enabled_) {
             ROS_ERROR("[TopicStatsManager] Cannot register topic '%s' - manager already started",
@@ -286,14 +273,13 @@ private:
         const size_t topic_index = topics_.size();
 
         reg.subscriber = nh.subscribe<MessageType>(
-            topic,
-            queue_size,
+            topic, queue_size,
             [this, callback, obj, topic_index](const typename MessageType::ConstPtr& msg) {
                 TopicRegistration& reg = topics_[topic_index];
 
                 const auto current_time = ros::Time::now();
-                const double dt = reg.last_time.isZero() ? 0.0 :
-                    (current_time - reg.last_time).toSec();
+                const double dt =
+                    reg.last_time.isZero() ? 0.0 : (current_time - reg.last_time).toSec();
 
                 reg.time_window.push_back(current_time);
                 reg.dt_window.push_back(dt);
@@ -318,7 +304,8 @@ private:
         topics_.push_back(std::move(reg));
 
         if (quality_output) {
-            ROS_DEBUG("[TopicStatsManager] Registered topic: %s (with quality detection)", topic.c_str());
+            ROS_DEBUG("[TopicStatsManager] Registered topic: %s (with quality detection)",
+                      topic.c_str());
         } else {
             ROS_DEBUG("[TopicStatsManager] Registered topic: %s", topic.c_str());
         }

@@ -66,13 +66,8 @@ TEST(UgvIdentificationIntegrationTest, RecoversSyntheticGazeboLikeTrajectory) {
     initial_state.yaw = 0.3;
 
     const double truth_delay = 0.03;
-    const std::vector<PoseSample> measured =
-        simulateMarkerTrajectory(commands,
-                                 sample_times,
-                                 truth_actuator,
-                                 truth_extrinsic,
-                                 initial_state,
-                                 truth_delay);
+    const std::vector<PoseSample> measured = simulateMarkerTrajectory(
+        commands, sample_times, truth_actuator, truth_extrinsic, initial_state, truth_delay);
 
     IdentificationOptions options;
     options.initial_actuator.k_v = 1.0;
@@ -91,8 +86,7 @@ TEST(UgvIdentificationIntegrationTest, RecoversSyntheticGazeboLikeTrajectory) {
     options.robust_loss_scale = 0.5;
     options.max_iterations = 120;
 
-    const IdentificationResult result =
-        identifyActuatorAndExtrinsic(commands, measured, options);
+    const IdentificationResult result = identifyActuatorAndExtrinsic(commands, measured, options);
 
     ASSERT_TRUE(result.success) << result.message;
     EXPECT_NEAR(result.actuator.k_v, truth_actuator.k_v, 0.08);

@@ -86,27 +86,23 @@ CommandSample interpolateCommandZeroOrder(const std::vector<CommandSample>& comm
                                           double query_time_s);
 
 double firstOrderExactStep(double state, double command, double gain, double tau_s, double dt_s);
-BodyState stepActuatorAndUnicycle(const BodyState& state,
-                                  double linear_velocity_cmd,
-                                  double yaw_rate_cmd,
-                                  const ActuatorParameters& actuator,
+BodyState stepActuatorAndUnicycle(const BodyState& state, double linear_velocity_cmd,
+                                  double yaw_rate_cmd, const ActuatorParameters& actuator,
                                   double dt_s);
 
 PoseSample markerPoseFromBodyState(const BodyState& body, const ExtrinsicEstimate& body_to_marker);
 Eigen::Vector4d poseResidual(const PoseSample& measured_marker_pose,
-                             const PoseSample& predicted_marker_pose,
-                             double position_weight,
+                             const PoseSample& predicted_marker_pose, double position_weight,
                              double yaw_weight);
 
 std::vector<PoseSample> simulateMarkerTrajectory(const std::vector<CommandSample>& commands,
                                                  const std::vector<double>& sample_times_s,
                                                  const ActuatorParameters& actuator,
                                                  const ExtrinsicEstimate& body_to_marker,
-                                                 const BodyState& initial_state,
-                                                 double delay_s);
+                                                 const BodyState& initial_state, double delay_s);
 
 IdentificationMetrics computeMetrics(const std::vector<PoseSample>& measured,
-                                      const std::vector<PoseSample>& predicted);
+                                     const std::vector<PoseSample>& predicted);
 
 IdentificationResult identifyActuatorAndExtrinsic(const std::vector<CommandSample>& commands,
                                                   const std::vector<PoseSample>& poses,

@@ -17,23 +17,19 @@ struct InputSnapshot {
     DirtySet dirty;
 };
 
-template <typename PoseMsgT, typename TwistMsgT, typename CommandMsgT>
-class InputStore {
+template <typename PoseMsgT, typename TwistMsgT, typename CommandMsgT> class InputStore {
 public:
-    void updatePose(const PoseMsgT& msg,
-                    const ros::Time& msg_stamp,
+    void updatePose(const PoseMsgT& msg, const ros::Time& msg_stamp,
                     const ros::WallTime& receive_wall_time) {
         pose_.update(msg, msg_stamp, receive_wall_time);
     }
 
-    void updateTwist(const TwistMsgT& msg,
-                     const ros::Time& msg_stamp,
+    void updateTwist(const TwistMsgT& msg, const ros::Time& msg_stamp,
                      const ros::WallTime& receive_wall_time) {
         twist_.update(msg, msg_stamp, receive_wall_time);
     }
 
-    void updateCommand(const CommandMsgT& msg,
-                       const ros::Time& msg_stamp,
+    void updateCommand(const CommandMsgT& msg, const ros::Time& msg_stamp,
                        const ros::WallTime& receive_wall_time) {
         command_.update(msg, msg_stamp, receive_wall_time);
     }

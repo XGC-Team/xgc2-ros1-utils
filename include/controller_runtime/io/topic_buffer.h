@@ -6,10 +6,10 @@
 
 namespace controller_runtime {
 
-template<typename MsgT>
-class TopicBuffer {
+template <typename MsgT> class TopicBuffer {
 public:
-    void update(const MsgT& msg, const ros::Time& msg_stamp, const ros::WallTime& receive_wall_time) {
+    void update(const MsgT& msg, const ros::Time& msg_stamp,
+                const ros::WallTime& receive_wall_time) {
         latest_ = msg;
         msg_stamp_ = msg_stamp;
         receive_wall_time_ = receive_wall_time;

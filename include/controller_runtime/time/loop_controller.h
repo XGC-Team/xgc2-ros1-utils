@@ -34,7 +34,7 @@ public:
     void requestStop() { stop_requested_.store(true); }
     bool stopRequested() const { return stop_requested_.load(); }
 
-    template<typename TickCallback, typename AfterTickCallback>
+    template <typename TickCallback, typename AfterTickCallback>
     void run(TickCallback&& tick, AfterTickCallback&& after_tick) {
         stop_requested_.store(false);
         while (ros::ok() && !stop_requested_.load()) {
@@ -54,8 +54,7 @@ public:
         }
     }
 
-    template<typename TickCallback>
-    void run(TickCallback&& tick) {
+    template <typename TickCallback> void run(TickCallback&& tick) {
         run(std::forward<TickCallback>(tick), [] {});
     }
 
@@ -73,8 +72,7 @@ public:
         if (ctx.ros_time_valid && last_ros_time_valid_) {
             ctx.ros_dt = (ctx.ros_now - last_ros_now_).toSec();
             ctx.ros_time_jumped_back = ctx.ros_dt < 0.0;
-            ctx.ros_time_jumped_forward =
-                ctx.ros_dt > options_.ros_jump_forward_threshold_s;
+            ctx.ros_time_jumped_forward = ctx.ros_dt > options_.ros_jump_forward_threshold_s;
         }
 
         last_wall_now_ = ctx.wall_now;
@@ -94,8 +92,7 @@ private:
         if (last_overrun_warning_.isZero() ||
             (now - last_overrun_warning_).toSec() >= options_.overrun_warn_period_s) {
             ROS_WARN("[LoopController] loop overrun: target %.1f Hz, elapsed %.3f ms",
-                     options_.frequency_hz,
-                     elapsed.count() * 1000.0);
+                     options_.frequency_hz, elapsed.count() * 1000.0);
             last_overrun_warning_ = now;
         }
     }

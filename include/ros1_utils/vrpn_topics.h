@@ -33,16 +33,17 @@ inline std::string stripTrailingSlash(std::string value) {
     return value;
 }
 
-inline VrpnTrackerTopics makeVrpnTrackerTopics(ros::NodeHandle& nh,
-                                               ros::NodeHandle& private_nh,
-                                               const std::string& default_vrpn_client_node = "/vrpn_client_node") {
+inline VrpnTrackerTopics
+makeVrpnTrackerTopics(ros::NodeHandle& nh, ros::NodeHandle& private_nh,
+                      const std::string& default_vrpn_client_node = "/vrpn_client_node") {
     std::string robot_name = nodeNamespaceBasename(nh.getNamespace());
     private_nh.param<std::string>("robot_name", robot_name, robot_name);
     robot_name = nodeNamespaceBasename(robot_name);
 
     std::string vrpn_client_node;
     private_nh.param<std::string>("vrpn_client_node", vrpn_client_node, default_vrpn_client_node);
-    vrpn_client_node = stripTrailingSlash(vrpn_client_node.empty() ? default_vrpn_client_node : vrpn_client_node);
+    vrpn_client_node =
+        stripTrailingSlash(vrpn_client_node.empty() ? default_vrpn_client_node : vrpn_client_node);
 
     VrpnTrackerTopics topics;
     topics.robot_name = robot_name;

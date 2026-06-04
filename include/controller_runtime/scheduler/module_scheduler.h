@@ -27,15 +27,13 @@ public:
 
     void addTask(TaskSpec spec, Callback callback) {
         Task task;
-        task.gate = TaskGate(spec);
+        task.gate = TaskGate(std::move(spec));
         task.callback = std::move(callback);
         task.stats.name = task.gate.spec().name;
         tasks_.push_back(std::move(task));
     }
 
-    void run(const TickContext& ctx, const DirtySet& dirty) {
-        run(ctx, dirty, std::string{});
-    }
+    void run(const TickContext& ctx, const DirtySet& dirty) { run(ctx, dirty, std::string{}); }
 
     void run(const TickContext& ctx, const DirtySet& dirty, const std::string& active_state) {
         for (auto& task : tasks_) {
@@ -53,7 +51,8 @@ public:
 
             const auto start = Clock::now();
             task.callback(ctx, dirty);
-            const auto elapsed = std::chrono::duration<double, std::milli>(Clock::now() - start).count();
+            const auto elapsed =
+                std::chrono::duration<double, std::milli>(Clock::now() - start).count();
             task.gate.markRun(ctx);
             ++task.stats.run_count;
             task.stats.last_compute_ms = elapsed;
@@ -63,7 +62,7 @@ public:
         }
     }
 
-    const std::vector<TaskStats> stats() const {
+    std::vector<TaskStats> stats() const {
         std::vector<TaskStats> result;
         result.reserve(tasks_.size());
         for (const auto& task : tasks_) {

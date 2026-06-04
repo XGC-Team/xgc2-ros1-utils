@@ -12,11 +12,8 @@ constexpr double kPi = 3.14159265358979323846;
 
 using control_utils::SecondOrderButterworthLowPass;
 
-double estimateRmsRatio(double signal_hz,
-                        double cutoff_hz,
-                        double sample_frequency_hz,
-                        double warmup_seconds = 3.0,
-                        double measure_seconds = 5.0) {
+double estimateRmsRatio(double signal_hz, double cutoff_hz, double sample_frequency_hz,
+                        double warmup_seconds = 3.0, double measure_seconds = 5.0) {
     const double dt = 1.0 / sample_frequency_hz;
     SecondOrderButterworthLowPass filter(cutoff_hz, 0.0);
 
@@ -38,8 +35,7 @@ double estimateRmsRatio(double signal_hz,
     return std::sqrt(output_energy / input_energy);
 }
 
-TEST(SecondOrderButterworthLowPassTest,
-     DefaultConstructedFilterActsAsPassThroughWhenCutoffIsZero) {
+TEST(SecondOrderButterworthLowPassTest, DefaultConstructedFilterActsAsPassThroughWhenCutoffIsZero) {
     SecondOrderButterworthLowPass filter;
     const double dt = 0.01;
 
@@ -110,8 +106,7 @@ TEST(SecondOrderButterworthLowPassTest, LowFrequencyPassesAndHighFrequencyIsAtte
     EXPECT_LT(high_ratio, 0.12);
 }
 
-TEST(SecondOrderButterworthLowPassTest,
-     NonFiniteInputReturnsPreviousOutputAndDoesNotPoisonState) {
+TEST(SecondOrderButterworthLowPassTest, NonFiniteInputReturnsPreviousOutputAndDoesNotPoisonState) {
     SecondOrderButterworthLowPass filter(5.0, 0.0);
     for (int i = 0; i < 100; ++i) {
         filter.filter(1.0, 0.01);
@@ -132,8 +127,7 @@ TEST(SecondOrderButterworthLowPassTest,
     EXPECT_TRUE(std::isfinite(after));
 }
 
-TEST(SecondOrderButterworthLowPassTest,
-     InvalidDtResetsStateAndReturnsRawInputCurrentBehavior) {
+TEST(SecondOrderButterworthLowPassTest, InvalidDtResetsStateAndReturnsRawInputCurrentBehavior) {
     SecondOrderButterworthLowPass filter(5.0, 0.0);
     for (int i = 0; i < 100; ++i) {
         filter.filter(1.0, 0.01);
@@ -156,11 +150,8 @@ TEST(SecondOrderButterworthLowPassTest, CutoffAboveLimitIsClampedCurrentBehavior
 
     for (int i = 0; i < 1000; ++i) {
         const double t = static_cast<double>(i) * dt;
-        const double x = std::sin(2.0 * kPi * 3.0 * t) +
-                         0.5 * std::sin(2.0 * kPi * 20.0 * t);
-        EXPECT_NEAR(clamped_filter.filter(x, dt),
-                    reference_filter.filter(x, dt),
-                    1.0e-12);
+        const double x = std::sin(2.0 * kPi * 3.0 * t) + 0.5 * std::sin(2.0 * kPi * 20.0 * t);
+        EXPECT_NEAR(clamped_filter.filter(x, dt), reference_filter.filter(x, dt), 1.0e-12);
     }
 }
 
@@ -182,8 +173,7 @@ TEST(SecondOrderButterworthLowPassTest, ResetStateChangesInternalStateButKeepsCu
     }
 }
 
-TEST(SecondOrderButterworthLowPassTest,
-     ExtremeButValidParametersDoNotProduceNanOrInf) {
+TEST(SecondOrderButterworthLowPassTest, ExtremeButValidParametersDoNotProduceNanOrInf) {
     const double cutoff_hz = 0.1;
     const double sample_frequency_hz = 10000.0;
     const double dt = 1.0 / sample_frequency_hz;

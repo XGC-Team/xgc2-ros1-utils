@@ -7,10 +7,8 @@
 
 namespace ros1_utils {
 
-template<typename T>
-bool getParamWithLog(ros::NodeHandle& nh,
-                     const std::string& param_name,
-                     T& value,
+template <typename T>
+bool getParamWithLog(ros::NodeHandle& nh, const std::string& param_name, T& value,
                      const std::string& description) {
     const bool found = nh.getParam(param_name, value);
 

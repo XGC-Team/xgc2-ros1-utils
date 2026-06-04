@@ -12,8 +12,7 @@ constexpr double kPi = 3.14159265358979323846;
 
 using control_utils::SecondOrderButterworthLowPass;
 
-double estimateAmplitudeAtFrequency(const std::vector<double>& samples,
-                                    double target_hz,
+double estimateAmplitudeAtFrequency(const std::vector<double>& samples, double target_hz,
                                     double sample_frequency_hz) {
     const double dt = 1.0 / sample_frequency_hz;
     double sin_projection = 0.0;
@@ -29,8 +28,7 @@ double estimateAmplitudeAtFrequency(const std::vector<double>& samples,
     const double scale = 2.0 / static_cast<double>(samples.size());
     sin_projection *= scale;
     cos_projection *= scale;
-    return std::sqrt(sin_projection * sin_projection +
-                     cos_projection * cos_projection);
+    return std::sqrt(sin_projection * sin_projection + cos_projection * cos_projection);
 }
 
 TEST(SecondOrderButterworthLowPassIntegrationTest,
@@ -61,8 +59,7 @@ TEST(SecondOrderButterworthLowPassIntegrationTest,
         }
     }
 
-    const double raw_low_amp =
-        estimateAmplitudeAtFrequency(raw_samples, 1.0, sample_frequency_hz);
+    const double raw_low_amp = estimateAmplitudeAtFrequency(raw_samples, 1.0, sample_frequency_hz);
     const double raw_high_amp =
         estimateAmplitudeAtFrequency(raw_samples, 30.0, sample_frequency_hz);
     const double filtered_low_amp =
@@ -81,9 +78,8 @@ TEST(SecondOrderButterworthLowPassIntegrationTest,
     SecondOrderButterworthLowPass filter(cutoff_hz, 0.0);
 
     const std::vector<double> raw_log = {
-        0.01, 0.04, 0.03, 0.09, 0.15, 0.11, 0.18, 0.21,
-        0.25, 0.22, 0.29, 0.35, 0.32, 0.40, 0.44, 0.41,
-        0.49, 0.55, 0.50, 0.58, 0.61, 0.57, 0.64, 0.68,
+        0.01, 0.04, 0.03, 0.09, 0.15, 0.11, 0.18, 0.21, 0.25, 0.22, 0.29, 0.35,
+        0.32, 0.40, 0.44, 0.41, 0.49, 0.55, 0.50, 0.58, 0.61, 0.57, 0.64, 0.68,
     };
     ASSERT_FALSE(raw_log.empty());
 
@@ -109,11 +105,9 @@ TEST(SecondOrderButterworthLowPassIntegrationTest,
     double t = 0.0;
     double max_abs_output = 0.0;
     for (int i = 0; i < 5000; ++i) {
-        const double dt =
-            nominal_dt * (1.0 + 0.2 * std::sin(2.0 * kPi * 0.5 * t));
+        const double dt = nominal_dt * (1.0 + 0.2 * std::sin(2.0 * kPi * 0.5 * t));
         t += dt;
-        const double input = std::sin(2.0 * kPi * 1.0 * t) +
-                             0.2 * std::sin(2.0 * kPi * 30.0 * t);
+        const double input = std::sin(2.0 * kPi * 1.0 * t) + 0.2 * std::sin(2.0 * kPi * 30.0 * t);
         const double y = filter.filter(input, dt);
         ASSERT_TRUE(std::isfinite(y));
         max_abs_output = std::max(max_abs_output, std::abs(y));
@@ -122,8 +116,7 @@ TEST(SecondOrderButterworthLowPassIntegrationTest,
     EXPECT_LT(max_abs_output, 2.0);
 }
 
-TEST(SecondOrderButterworthLowPassIntegrationTest,
-     ClosedLoopToyPlantRemainsStableWithFilter) {
+TEST(SecondOrderButterworthLowPassIntegrationTest, ClosedLoopToyPlantRemainsStableWithFilter) {
     const double dt = 0.001;
     SecondOrderButterworthLowPass measurement_filter(20.0, 0.0);
 
@@ -139,8 +132,7 @@ TEST(SecondOrderButterworthLowPassIntegrationTest,
         const double measurement_noise = 0.01 * std::sin(2.0 * kPi * 200.0 * t);
         const double measured_position = plant_position + measurement_noise;
         const double filtered_position = measurement_filter.filter(measured_position, dt);
-        const double filtered_velocity =
-            (filtered_position - previous_filtered_position) / dt;
+        const double filtered_velocity = (filtered_position - previous_filtered_position) / dt;
         previous_filtered_position = filtered_position;
 
         const double error = target_position - filtered_position;
