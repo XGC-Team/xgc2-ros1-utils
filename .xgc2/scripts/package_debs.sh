@@ -75,7 +75,7 @@ Section: misc
 Priority: optional
 Architecture: ${ARCH}
 Maintainer: XGC2 <apt@example.com>
-Depends: libceres-dev, libeigen3-dev, ros-noetic-roscpp
+Depends: libceres-dev, libeigen3-dev, libxgc2-observer-dev (>= 0.3.0-1), ros-noetic-roscpp
 Provides: ros-noetic-controller-runtime, ros-noetic-control-utils
 Conflicts: ros-noetic-controller-runtime, ros-noetic-control-utils
 Description: XGC2 ROS1 runtime and control utilities

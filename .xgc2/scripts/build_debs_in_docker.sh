@@ -53,6 +53,7 @@ docker run --rm \
       build-essential \
       ca-certificates \
       cmake \
+      curl \
       dpkg-dev \
       fakeroot \
       file \
@@ -62,6 +63,15 @@ docker run --rm \
       rsync \
       ros-noetic-roscpp \
       ros-noetic-rospack
+
+    install -m 0755 -d /etc/apt/keyrings
+    curl -fsSL https://xgc2.apt.xiaokang.ink/xgc2-archive-keyring.gpg \
+      -o /etc/apt/keyrings/xgc2-archive-keyring.gpg
+    chmod 0644 /etc/apt/keyrings/xgc2-archive-keyring.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/xgc2-archive-keyring.gpg] https://xgc2.apt.xiaokang.ink focal main" \
+      > /etc/apt/sources.list.d/xgc2.list
+    apt-get update
+    apt-get install -y --no-install-recommends libxgc2-observer-dev=0.3.0-1
 
     rm -rf /workspace/work/src /workspace/work/build /workspace/work/devel /workspace/work/install-root
     mkdir -p /workspace/work/src/ros1_utils

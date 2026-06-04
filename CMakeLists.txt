@@ -6,6 +6,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 find_package(Eigen3 REQUIRED)
 find_package(Ceres REQUIRED)
+find_package(xgc2_observer REQUIRED CONFIG)
 
 catkin_package(
   INCLUDE_DIRS include
@@ -69,6 +70,7 @@ if(CATKIN_ENABLE_TESTING)
     target_compile_features(${PROJECT_NAME}_butterworth_filter_test PUBLIC cxx_std_17)
     target_link_libraries(${PROJECT_NAME}_butterworth_filter_test
       ${catkin_LIBRARIES}
+      xgc2_observer::observer
     )
   endif()
 
@@ -79,6 +81,7 @@ if(CATKIN_ENABLE_TESTING)
     target_compile_features(${PROJECT_NAME}_butterworth_filter_integration_test PUBLIC cxx_std_17)
     target_link_libraries(${PROJECT_NAME}_butterworth_filter_integration_test
       ${catkin_LIBRARIES}
+      xgc2_observer::observer
     )
   endif()
 
