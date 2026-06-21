@@ -8,6 +8,7 @@
 #include "controller_runtime/io/topic_buffer.h"
 #include "controller_runtime/scheduler/module_scheduler.h"
 #include "controller_runtime/time/loop_controller.h"
+#include "ros1_utils/namespace_utils.h"
 
 namespace controller_runtime {
 namespace {
@@ -217,6 +218,13 @@ TEST(ModuleSchedulerTest, RespectsEnabledStates) {
     EXPECT_EQ(tracking_runs, 1);
     stats = scheduler.stats();
     EXPECT_EQ(stats[0].last_skip_reason, SkipReason::None);
+}
+
+TEST(NamespaceUtilsTest, ExtractsPrefixedNamesFromNamespaces) {
+    EXPECT_EQ(ros1_utils::nameFromNamespacePrefix("/swarm/uav12/controller", "/uav"), "uav12");
+    EXPECT_EQ(ros1_utils::nameFromNamespacePrefix("/uav7", "/uav"), "uav7");
+    EXPECT_EQ(ros1_utils::nameFromNamespacePrefix("/robot7", "/uav"), "");
+    EXPECT_EQ(ros1_utils::nameFromNamespacePrefix("/uav/controller", "/uav"), "");
 }
 
 }  // namespace

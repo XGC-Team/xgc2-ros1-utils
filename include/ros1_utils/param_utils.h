@@ -2,7 +2,9 @@
 
 #include <string>
 #include <type_traits>
+#include <vector>
 
+#include <Eigen/Dense>
 #include <ros/ros.h>
 
 namespace ros1_utils {
@@ -27,6 +29,25 @@ bool getParamWithLog(ros::NodeHandle& nh, const std::string& param_name, T& valu
     }
 
     return found;
+}
+
+inline bool getVector3ParamWithLog(ros::NodeHandle& nh, const std::string& param_name,
+                                   Eigen::Vector3d& value, const std::string& description) {
+    std::vector<double> raw;
+    if (!nh.getParam(param_name, raw)) {
+        ROS_WARN("[ROS1Utils] Parameter '%s' not found, using default", param_name.c_str());
+        return false;
+    }
+    if (raw.size() != 3) {
+        ROS_WARN("[ROS1Utils] Parameter '%s' must contain 3 values, using default",
+                 param_name.c_str());
+        return false;
+    }
+
+    value << raw[0], raw[1], raw[2];
+    ROS_INFO("[ROS1Utils] %s: [%.3f, %.3f, %.3f]", description.c_str(), value.x(), value.y(),
+             value.z());
+    return true;
 }
 
 }  // namespace ros1_utils

@@ -8,6 +8,7 @@ dpkg -s ros-noetic-xgc2-ros1-utils >/dev/null
 dpkg -s libxgc2-observer-dev >/dev/null
 rospack find ros1_utils >/dev/null
 test -f "${PREFIX}/include/ros1_utils/loop_controller.h"
+test -f "${PREFIX}/include/ros1_utils/namespace_utils.h"
 test -f "${PREFIX}/include/ros1_utils/param_utils.h"
 test -f "${PREFIX}/include/ros1_utils/topic_stats.h"
 test -f "${PREFIX}/include/ros1_utils/vrpn_topics.h"
@@ -96,6 +97,7 @@ cat > "${downstream_ws}/src/ros1_utils_downstream_smoke/src/main.cpp" <<'EOF'
 #include "controller_runtime/time/loop_controller.h"
 #include "controller_runtime/time/tick_context.h"
 #include "ros1_utils/loop_controller.h"
+#include "ros1_utils/namespace_utils.h"
 #include "ros1_utils/param_utils.h"
 #include "ros1_utils/topic_stats.h"
 #include "ros1_utils/vrpn_topics.h"
@@ -144,6 +146,11 @@ int main(int argc, char** argv) {
     const std::string topic = ros1_utils::stripTrailingSlash("/vrpn_client_node/");
     if (topic != "/vrpn_client_node") {
         return 5;
+    }
+
+    if (ros1_utils::nameFromNamespacePrefix("/swarm/uav12/controller", "/uav") !=
+        "uav12") {
+        return 6;
     }
 
     return 0;
