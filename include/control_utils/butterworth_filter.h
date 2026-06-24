@@ -1,7 +1,7 @@
 #ifndef CONTROL_UTILS_BUTTERWORTH_FILTER_H
 #define CONTROL_UTILS_BUTTERWORTH_FILTER_H
 
-#include <filter/butterworth_filter.hpp>
+#include <xgc2_math/filter/butterworth_filter.hpp>
 
 namespace control_utils {
 
