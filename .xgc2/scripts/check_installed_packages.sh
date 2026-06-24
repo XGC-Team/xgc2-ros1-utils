@@ -5,7 +5,7 @@ ROS_DISTRO="${ROS_DISTRO:-noetic}"
 PREFIX="/opt/ros/${ROS_DISTRO}"
 
 dpkg -s ros-noetic-xgc2-ros1-utils >/dev/null
-dpkg -s libxgc2-observer-dev >/dev/null
+dpkg -s libxgc2-math-dev >/dev/null
 rospack find ros1_utils >/dev/null
 test -f "${PREFIX}/include/ros1_utils/loop_controller.h"
 test -f "${PREFIX}/include/ros1_utils/namespace_utils.h"
@@ -22,7 +22,7 @@ test -f "${PREFIX}/include/controller_runtime/time/loop_controller.h"
 test -f "${PREFIX}/include/controller_runtime/time/tick_context.h"
 test -f "${PREFIX}/include/control_utils/butterworth_filter.h"
 test -f "${PREFIX}/include/control_utils/ugv_identification.h"
-test -f /usr/include/xgc2_observer/butterworth_filter.hpp
+test -f /usr/include/xgc2_math/filter/butterworth_filter.hpp
 test -f "${PREFIX}/lib/libros1_utils_ugv_identification.so"
 
 while IFS= read -r file; do

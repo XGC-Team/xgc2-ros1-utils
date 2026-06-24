@@ -16,7 +16,7 @@ apt:
   packages:
     - ros-noetic-xgc2-ros1-utils
   depends:
-    - libxgc2-observer-dev
+    - libxgc2-math-dev
 
 usage:
   install: |
