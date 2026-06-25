@@ -46,7 +46,7 @@ jobs:
                 > /etc/apt/sources.list.d/xgc2.list
               apt-get update
               apt-get install -y --no-install-recommends libxgc2-math-dev
-              dpkg-query --compare-versions "$(dpkg-query -W -f='\''${Version}'\'' libxgc2-math-dev)" ge 0.5.1-1
+              dpkg --compare-versions "$(dpkg-query -W -f='\''${Version}'\'' libxgc2-math-dev)" ge 0.5.1-1
 
               cd /workspace/ros1-utils
               .xgc2/scripts/check_cpp_quality.sh --work-dir /tmp/ros1-utils-cpp-quality
