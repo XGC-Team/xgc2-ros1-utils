@@ -72,6 +72,7 @@ docker run --rm \
       > /etc/apt/sources.list.d/xgc2.list
     apt-get update
     apt-get install -y --no-install-recommends libxgc2-math-dev
+    dpkg-query --compare-versions "$(dpkg-query -W -f="\${Version}" libxgc2-math-dev)" ge 0.5.1-1
 
     rm -rf /workspace/work/src /workspace/work/build /workspace/work/devel /workspace/work/install-root
     mkdir -p /workspace/work/src/ros1_utils

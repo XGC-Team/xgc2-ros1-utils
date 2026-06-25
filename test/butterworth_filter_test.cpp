@@ -4,13 +4,13 @@
 #include <limits>
 #include <vector>
 
-#include "control_utils/butterworth_filter.h"
+#include <xgc2_math/filter/butterworth_filter.hpp>
 
 namespace {
 
 constexpr double kPi = 3.14159265358979323846;
 
-using control_utils::SecondOrderButterworthLowPass;
+using xgc2_math::SecondOrderButterworthLowPass;
 
 double estimateRmsRatio(double signal_hz, double cutoff_hz, double sample_frequency_hz,
                         double warmup_seconds = 3.0, double measure_seconds = 5.0) {
@@ -127,16 +127,26 @@ TEST(SecondOrderButterworthLowPassTest, NonFiniteInputReturnsPreviousOutputAndDo
     EXPECT_TRUE(std::isfinite(after));
 }
 
-TEST(SecondOrderButterworthLowPassTest, InvalidDtResetsStateAndReturnsRawInputCurrentBehavior) {
+TEST(SecondOrderButterworthLowPassTest, InvalidDtHoldsPreviousOutputAndKeepsState) {
     SecondOrderButterworthLowPass filter(5.0, 0.0);
     for (int i = 0; i < 100; ++i) {
         filter.filter(1.0, 0.01);
     }
 
-    const double y = filter.filter(42.0, 0.0);
-    EXPECT_NEAR(y, 42.0, 1.0e-12);
-    EXPECT_NEAR(filter.value(), 42.0, 1.0e-12);
-    EXPECT_NEAR(filter.filter(42.0, 0.01), 42.0, 1.0e-12);
+    const double previous = filter.value();
+    ASSERT_TRUE(std::isfinite(previous));
+
+    EXPECT_NEAR(filter.filter(42.0, 0.0), previous, 1.0e-12);
+    EXPECT_NEAR(filter.value(), previous, 1.0e-12);
+    EXPECT_NEAR(filter.filter(42.0, -0.01), previous, 1.0e-12);
+    EXPECT_NEAR(filter.value(), previous, 1.0e-12);
+    EXPECT_NEAR(filter.filter(42.0, std::numeric_limits<double>::quiet_NaN()), previous, 1.0e-12);
+    EXPECT_NEAR(filter.value(), previous, 1.0e-12);
+    EXPECT_NEAR(filter.filter(42.0, std::numeric_limits<double>::infinity()), previous, 1.0e-12);
+    EXPECT_NEAR(filter.value(), previous, 1.0e-12);
+
+    const double resumed = filter.filter(1.0, 0.01);
+    EXPECT_TRUE(std::isfinite(resumed));
 }
 
 TEST(SecondOrderButterworthLowPassTest, CutoffAboveLimitIsClampedCurrentBehavior) {
@@ -153,6 +163,65 @@ TEST(SecondOrderButterworthLowPassTest, CutoffAboveLimitIsClampedCurrentBehavior
         const double x = std::sin(2.0 * kPi * 3.0 * t) + 0.5 * std::sin(2.0 * kPi * 20.0 * t);
         EXPECT_NEAR(clamped_filter.filter(x, dt), reference_filter.filter(x, dt), 1.0e-12);
     }
+}
+
+TEST(SecondOrderButterworthLowPassTest, NonFiniteCutoffActsAsPassThroughAndDoesNotPoisonState) {
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    const double inf = std::numeric_limits<double>::infinity();
+
+    SecondOrderButterworthLowPass filter(nan, 1.0);
+    EXPECT_NEAR(filter.filter(4.0, 0.01), 4.0, 1.0e-12);
+    EXPECT_NEAR(filter.value(), 4.0, 1.0e-12);
+    EXPECT_TRUE(std::isfinite(filter.value()));
+
+    filter.setCutoffFrequencyHz(inf);
+    EXPECT_NEAR(filter.filter(6.0, 0.01), 6.0, 1.0e-12);
+    EXPECT_NEAR(filter.value(), 6.0, 1.0e-12);
+    EXPECT_TRUE(std::isfinite(filter.value()));
+}
+
+TEST(SecondOrderButterworthLowPassTest, ResetStateRejectsNonFiniteValue) {
+    SecondOrderButterworthLowPass filter(5.0, 1.0);
+
+    filter.resetState(std::numeric_limits<double>::quiet_NaN());
+    EXPECT_TRUE(filter.initialized());
+    EXPECT_NEAR(filter.value(), 0.0, 1.0e-12);
+
+    const double y = filter.filter(1.0, 0.01);
+    EXPECT_TRUE(std::isfinite(y));
+    EXPECT_TRUE(std::isfinite(filter.value()));
+
+    filter.resetState(std::numeric_limits<double>::infinity());
+    EXPECT_TRUE(filter.initialized());
+    EXPECT_NEAR(filter.value(), 0.0, 1.0e-12);
+}
+
+TEST(SecondOrderButterworthLowPassTest, SetCutoffFrequencyDoesNotResetState) {
+    SecondOrderButterworthLowPass filter(1.0, 0.0);
+    for (int i = 0; i < 50; ++i) {
+        filter.filter(1.0, 0.01);
+    }
+
+    const double previous = filter.value();
+    ASSERT_TRUE(std::isfinite(previous));
+
+    filter.setCutoffFrequencyHz(10.0);
+    EXPECT_NEAR(filter.cutoffFrequencyHz(), 10.0, 1.0e-12);
+    EXPECT_NEAR(filter.value(), previous, 1.0e-12);
+
+    const double resumed = filter.filter(2.0, 0.01);
+    EXPECT_TRUE(std::isfinite(resumed));
+}
+
+TEST(SecondOrderButterworthLowPassTest, NonFiniteOutputResetsToCurrentInputAndRecovers) {
+    SecondOrderButterworthLowPass filter(5.0, 0.0);
+    filter.resetState(std::numeric_limits<double>::max());
+
+    EXPECT_NEAR(filter.filter(1.0, 0.01), 1.0, 1.0e-12);
+    EXPECT_NEAR(filter.value(), 1.0, 1.0e-12);
+
+    const double resumed = filter.filter(1.0, 0.01);
+    EXPECT_TRUE(std::isfinite(resumed));
 }
 
 TEST(SecondOrderButterworthLowPassTest, ResetStateChangesInternalStateButKeepsCutoff) {

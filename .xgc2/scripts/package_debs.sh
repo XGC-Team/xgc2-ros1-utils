@@ -4,7 +4,7 @@ set -euo pipefail
 INSTALL_ROOT=""
 OUTPUT_DIR=""
 ROS_DISTRO="${ROS_DISTRO:-noetic}"
-VERSION="${PACKAGE_VERSION:-1.0.1-1}"
+VERSION="${PACKAGE_VERSION:-1.0.2-1}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -75,7 +75,7 @@ Section: misc
 Priority: optional
 Architecture: ${ARCH}
 Maintainer: XGC2 <apt@example.com>
-Depends: libceres-dev, libeigen3-dev, libxgc2-math-dev (>= 0.4.0-1), ros-noetic-roscpp
+Depends: libceres-dev, libeigen3-dev, libxgc2-math-dev (>= 0.5.1-1), ros-noetic-roscpp
 Provides: ros-noetic-controller-runtime, ros-noetic-control-utils
 Conflicts: ros-noetic-controller-runtime, ros-noetic-control-utils
 Description: XGC2 ROS1 runtime and control utilities

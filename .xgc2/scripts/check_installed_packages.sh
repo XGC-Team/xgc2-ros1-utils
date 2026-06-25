@@ -20,7 +20,6 @@ test -f "${PREFIX}/include/controller_runtime/scheduler/module_scheduler.h"
 test -f "${PREFIX}/include/controller_runtime/scheduler/task_gate.h"
 test -f "${PREFIX}/include/controller_runtime/time/loop_controller.h"
 test -f "${PREFIX}/include/controller_runtime/time/tick_context.h"
-test -f "${PREFIX}/include/control_utils/butterworth_filter.h"
 test -f "${PREFIX}/include/control_utils/ugv_identification.h"
 test -f /usr/include/xgc2_math/filter/butterworth_filter.hpp
 test -f "${PREFIX}/lib/libros1_utils_ugv_identification.so"
@@ -86,7 +85,6 @@ cat > "${downstream_ws}/src/ros1_utils_downstream_smoke/src/main.cpp" <<'EOF'
 
 #include <ros/ros.h>
 
-#include "control_utils/butterworth_filter.h"
 #include "control_utils/ugv_identification.h"
 #include "controller_runtime/control/controller_interface.h"
 #include "controller_runtime/event/event_queue.h"
@@ -101,11 +99,12 @@ cat > "${downstream_ws}/src/ros1_utils_downstream_smoke/src/main.cpp" <<'EOF'
 #include "ros1_utils/param_utils.h"
 #include "ros1_utils/topic_stats.h"
 #include "ros1_utils/vrpn_topics.h"
+#include <xgc2_math/filter/butterworth_filter.hpp>
 
 int main(int argc, char** argv) {
     ros::init(argc, argv, "ros1_utils_downstream_smoke", ros::init_options::AnonymousName);
 
-    control_utils::SecondOrderButterworthLowPass filter(5.0);
+    xgc2_math::SecondOrderButterworthLowPass filter(5.0);
     const double filtered = filter.filter(1.0, 0.01);
     if (!std::isfinite(filtered)) {
         return 1;

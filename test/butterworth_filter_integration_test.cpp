@@ -4,13 +4,13 @@
 #include <cmath>
 #include <vector>
 
-#include "control_utils/butterworth_filter.h"
+#include <xgc2_math/filter/butterworth_filter.hpp>
 
 namespace {
 
 constexpr double kPi = 3.14159265358979323846;
 
-using control_utils::SecondOrderButterworthLowPass;
+using xgc2_math::SecondOrderButterworthLowPass;
 
 double estimateAmplitudeAtFrequency(const std::vector<double>& samples, double target_hz,
                                     double sample_frequency_hz) {

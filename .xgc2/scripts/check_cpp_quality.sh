@@ -38,7 +38,9 @@ git config --global --add safe.directory "${REPO_ROOT}" >/dev/null 2>&1 || true
 
 mapfile -t FORMAT_FILES < <(
   cd "${REPO_ROOT}"
-  git ls-files '*.cpp' '*.h' '*.hpp' | sort
+  git ls-files '*.cpp' '*.h' '*.hpp' | while IFS= read -r file; do
+    [[ -e "${file}" ]] && printf '%s\n' "${file}"
+  done | sort
 )
 
 if [[ "${#FORMAT_FILES[@]}" -eq 0 ]]; then
