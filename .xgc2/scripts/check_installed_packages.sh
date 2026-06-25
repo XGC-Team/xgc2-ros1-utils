@@ -5,35 +5,15 @@ ROS_DISTRO="${ROS_DISTRO:-noetic}"
 PREFIX="/opt/ros/${ROS_DISTRO}"
 
 dpkg -s ros-noetic-xgc2-ros1-utils >/dev/null
-dpkg -s libxgc2-math-dev >/dev/null
 rospack find ros1_utils >/dev/null
-test -f "${PREFIX}/include/ros1_utils/loop_controller.h"
 test -f "${PREFIX}/include/ros1_utils/namespace_utils.h"
 test -f "${PREFIX}/include/ros1_utils/param_utils.h"
 test -f "${PREFIX}/include/ros1_utils/topic_stats.h"
-test -f "${PREFIX}/include/ros1_utils/vrpn_topics.h"
-test -f "${PREFIX}/include/controller_runtime/control/controller_interface.h"
-test -f "${PREFIX}/include/controller_runtime/event/event_queue.h"
-test -f "${PREFIX}/include/controller_runtime/io/input_store.h"
-test -f "${PREFIX}/include/controller_runtime/io/topic_buffer.h"
-test -f "${PREFIX}/include/controller_runtime/scheduler/module_scheduler.h"
-test -f "${PREFIX}/include/controller_runtime/scheduler/task_gate.h"
-test -f "${PREFIX}/include/controller_runtime/time/loop_controller.h"
-test -f "${PREFIX}/include/controller_runtime/time/tick_context.h"
-test -f "${PREFIX}/include/control_utils/ugv_identification.h"
-test -f /usr/include/xgc2_math/filter/butterworth_filter.hpp
-test -f "${PREFIX}/lib/libros1_utils_ugv_identification.so"
-
-while IFS= read -r file; do
-  if ! file -b "${file}" | grep -q '^ELF'; then
-    continue
-  fi
-  if ! ldd "${file}" | awk '/not found/ {missing=1} END {exit missing ? 1 : 0}'; then
-    echo "missing shared library dependency in ${file}" >&2
-    ldd "${file}" >&2 || true
-    exit 1
-  fi
-done < <(find "${PREFIX}/lib" -maxdepth 1 -type f -name 'libros1_utils_*.so' | sort -u)
+test ! -e "${PREFIX}/include/ros1_utils/loop_controller.h"
+test ! -e "${PREFIX}/include/ros1_utils/vrpn_topics.h"
+test ! -e "${PREFIX}/include/controller_runtime/time/loop_controller.h"
+test ! -e "${PREFIX}/include/control_utils/ugv_identification.h"
+test ! -e "${PREFIX}/lib/libros1_utils_ugv_identification.so"
 
 downstream_ws="$(mktemp -d)"
 cleanup() {
@@ -80,76 +60,34 @@ target_link_libraries(${PROJECT_NAME}
 EOF
 
 cat > "${downstream_ws}/src/ros1_utils_downstream_smoke/src/main.cpp" <<'EOF'
-#include <cmath>
-#include <vector>
+#include <deque>
 
 #include <ros/ros.h>
 
-#include "control_utils/ugv_identification.h"
-#include "controller_runtime/control/controller_interface.h"
-#include "controller_runtime/event/event_queue.h"
-#include "controller_runtime/io/input_store.h"
-#include "controller_runtime/io/topic_buffer.h"
-#include "controller_runtime/scheduler/module_scheduler.h"
-#include "controller_runtime/scheduler/task_gate.h"
-#include "controller_runtime/time/loop_controller.h"
-#include "controller_runtime/time/tick_context.h"
-#include "ros1_utils/loop_controller.h"
 #include "ros1_utils/namespace_utils.h"
 #include "ros1_utils/param_utils.h"
 #include "ros1_utils/topic_stats.h"
-#include "ros1_utils/vrpn_topics.h"
-#include <xgc2_math/filter/butterworth_filter.hpp>
 
 int main(int argc, char** argv) {
     ros::init(argc, argv, "ros1_utils_downstream_smoke", ros::init_options::AnonymousName);
 
-    xgc2_math::SecondOrderButterworthLowPass filter(5.0);
-    const double filtered = filter.filter(1.0, 0.01);
-    if (!std::isfinite(filtered)) {
+    if (ros1_utils::nameFromNamespacePrefix("/swarm/uav12/controller", "/uav") !=
+        "uav12") {
         return 1;
     }
 
-    const double wrapped = control_utils::ugv_identification::normalizeAngle(4.0);
-    if (!std::isfinite(wrapped)) {
+    ros1_utils::PositionQualityConfig quality_config;
+    quality_config.window_size = 3;
+    ros1_utils::PositionQualityDetector detector(quality_config);
+    detector.process(1.0, 2.0, 3.0);
+    const auto repeated = detector.process(1.0, 2.0, 3.0);
+    if (repeated.frame_is_valid) {
         return 2;
     }
 
-    controller_runtime::TickContext tick;
-    tick.seq = 1;
-    tick.ros_now = ros::Time(1.0);
-    tick.wall_now = ros::WallTime(1.0);
-    tick.ros_time_valid = true;
-
-    controller_runtime::TaskGate gate;
-    controller_runtime::DirtySet dirty;
-    if (!gate.ready(tick, dirty)) {
+    const std::deque<double> dt_window{0.1, 0.2, 0.3};
+    if (ros1_utils::TopicStatsManager::calculateJitter(dt_window) <= 0.0) {
         return 3;
-    }
-
-    controller_runtime::EventQueue events;
-    controller_runtime::RuntimeEvent event;
-    event.id = 1;
-    event.stamp = tick.ros_now.toSec();
-    event.source = "downstream_smoke";
-    events.push(event);
-    if (events.drain().empty()) {
-        return 4;
-    }
-
-    ros1_utils::LoopControllerOptions options;
-    options.frequency_hz = 100.0;
-    ros1_utils::LoopController loop(options);
-    loop.requestStop();
-
-    const std::string topic = ros1_utils::stripTrailingSlash("/vrpn_client_node/");
-    if (topic != "/vrpn_client_node") {
-        return 5;
-    }
-
-    if (ros1_utils::nameFromNamespacePrefix("/swarm/uav12/controller", "/uav") !=
-        "uav12") {
-        return 6;
     }
 
     return 0;

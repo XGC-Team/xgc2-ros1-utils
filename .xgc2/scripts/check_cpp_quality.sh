@@ -75,7 +75,9 @@ catkin_make \
 
 mapfile -t TIDY_FILES < <(
   cd "${REPO_ROOT}"
-  git ls-files 'src/*.cpp' 'test/*.cpp' | sort
+  git ls-files 'src/*.cpp' 'test/*.cpp' | while IFS= read -r file; do
+    [[ -e "${file}" ]] && printf '%s\n' "${file}"
+  done | sort
 )
 
 for file in "${TIDY_FILES[@]}"; do

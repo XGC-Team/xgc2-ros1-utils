@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>ros1_utils</name>
-  <version>0.1.0</version>
-  <description>Shared ROS1 runtime, scheduling, topic, and control utility helpers.</description>
+  <version>0.2.0</version>
+  <description>Shared ROS1 parameter, namespace, and topic quality helpers.</description>
 
   <maintainer email="lxk@todo.todo">lxk</maintainer>
   <license>MIT</license>
@@ -11,16 +11,10 @@
 
   <build_depend>roscpp</build_depend>
   <build_depend>eigen</build_depend>
-  <build_depend>libceres-dev</build_depend>
-  <build_depend>libxgc2-math-dev</build_depend>
 
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>eigen</build_export_depend>
-  <build_export_depend>libceres-dev</build_export_depend>
-  <build_export_depend>libxgc2-math-dev</build_export_depend>
 
   <exec_depend>roscpp</exec_depend>
   <exec_depend>eigen</exec_depend>
-  <exec_depend>libceres-dev</exec_depend>
-  <exec_depend>libxgc2-math-dev</exec_depend>
 </package>

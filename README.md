@@ -1,13 +1,15 @@
 # XGC2 ROS1 Utils
 
-`ros1_utils` collects ROS1-coupled utility code used by XGC2 controllers and
-simulation runtime packages.
+`ros1_utils` collects the small ROS1-coupled helper surface shared by active
+XGC2 controllers and estimators.
 
-It intentionally keeps the existing include namespaces stable:
+The supported include namespace is:
 
 - `ros1_utils/*`
-- `controller_runtime/*`
-- `control_utils/*`
+
+The package intentionally does not own controller runtime scheduling,
+calibration, VRPN routing, or math/filter algorithms. Those responsibilities
+belong to the controller, estimator, simulator bridge, and `xgc2_math` products.
 
 Install:
 

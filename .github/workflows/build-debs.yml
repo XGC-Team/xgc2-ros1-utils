@@ -26,27 +26,14 @@ jobs:
               apt-get update
               apt-get install -y --no-install-recommends \
                 build-essential \
-                ca-certificates \
                 clang-format \
                 clang-tidy \
                 cmake \
-                curl \
                 git \
-                libceres-dev \
                 libeigen3-dev \
                 rsync \
                 ros-noetic-roscpp \
                 ros-noetic-rospack
-
-              install -m 0755 -d /etc/apt/keyrings
-              curl -fsSL https://xgc2.apt.xiaokang.ink/xgc2-archive-keyring.gpg \
-                -o /etc/apt/keyrings/xgc2-archive-keyring.gpg
-              chmod 0644 /etc/apt/keyrings/xgc2-archive-keyring.gpg
-              echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/xgc2-archive-keyring.gpg] https://xgc2.apt.xiaokang.ink focal main" \
-                > /etc/apt/sources.list.d/xgc2.list
-              apt-get update
-              apt-get install -y --no-install-recommends libxgc2-math-dev
-              dpkg --compare-versions "$(dpkg-query -W -f='\''${Version}'\'' libxgc2-math-dev)" ge 0.5.1-1
 
               cd /workspace/ros1-utils
               .xgc2/scripts/check_cpp_quality.sh --work-dir /tmp/ros1-utils-cpp-quality

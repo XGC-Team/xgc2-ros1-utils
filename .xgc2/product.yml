@@ -1,9 +1,9 @@
 schema: xgc2.product.v1
 id: xgc2-ros1-utils
 name: XGC2 ROS1 Utils
-version: 1.0.2-1
+version: 1.1.0-1
 kind: ros1-apt
-summary: ROS1-coupled runtime, scheduling, topic, and control utility helpers for XGC2 controllers.
+summary: ROS1-coupled parameter, namespace, and topic quality helpers for XGC2 runtime packages.
 
 ros:
   distro: noetic
@@ -16,8 +16,7 @@ apt:
     - ros-noetic-xgc2-ros1-utils
   packages:
     - ros-noetic-xgc2-ros1-utils
-  depends:
-    - libxgc2-math-dev (>= 0.5.1-1)
+  depends: []
 
 usage:
   install: |
@@ -30,6 +29,3 @@ ownership:
   paths:
     - /opt/ros/noetic/share/ros1_utils
     - /opt/ros/noetic/include/ros1_utils
-    - /opt/ros/noetic/include/controller_runtime
-    - /opt/ros/noetic/include/control_utils
-    - /opt/ros/noetic/lib/libros1_utils_ugv_identification.so

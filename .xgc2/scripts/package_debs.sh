@@ -4,7 +4,7 @@ set -euo pipefail
 INSTALL_ROOT=""
 OUTPUT_DIR=""
 ROS_DISTRO="${ROS_DISTRO:-noetic}"
-VERSION="${PACKAGE_VERSION:-1.0.2-1}"
+VERSION="${PACKAGE_VERSION:-1.1.0-1}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -55,16 +55,9 @@ copy_path() {
 
 copy_path "${PREFIX_ROOT}/share/ros1_utils"
 copy_path "${PREFIX_ROOT}/include/ros1_utils"
-copy_path "${PREFIX_ROOT}/include/controller_runtime"
-copy_path "${PREFIX_ROOT}/include/control_utils"
-copy_path "${PREFIX_ROOT}/lib/libros1_utils_ugv_identification.so"
 
 if [[ ! -d "${pkg_root}${PREFIX}/share/ros1_utils" ]]; then
   echo "missing installed ros1_utils share directory" >&2
-  exit 1
-fi
-if [[ ! -f "${pkg_root}${PREFIX}/lib/libros1_utils_ugv_identification.so" ]]; then
-  echo "missing installed ros1_utils ugv identification library" >&2
   exit 1
 fi
 
@@ -75,12 +68,10 @@ Section: misc
 Priority: optional
 Architecture: ${ARCH}
 Maintainer: XGC2 <apt@example.com>
-Depends: libceres-dev, libeigen3-dev, libxgc2-math-dev (>= 0.5.1-1), ros-noetic-roscpp
-Provides: ros-noetic-controller-runtime, ros-noetic-control-utils
-Conflicts: ros-noetic-controller-runtime, ros-noetic-control-utils
-Description: XGC2 ROS1 runtime and control utilities
- Header and library package for ROS1-coupled controller runtime,
- scheduling, topic helpers, and control utility code.
+Depends: libeigen3-dev, ros-noetic-roscpp
+Description: XGC2 ROS1 utility headers
+ Header package for ROS1-coupled parameter, namespace, and topic
+ quality helpers used by active XGC2 runtime packages.
 EOF
 
 printf '%s package\n' "${PACKAGE}" > "${pkg_root}/usr/share/doc/${PACKAGE}/README"
