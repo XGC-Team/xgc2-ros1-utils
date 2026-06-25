@@ -170,7 +170,8 @@ public:
 
             const double duration = (reg.time_window.back() - reg.time_window.front()).toSec();
             if (duration > 0.0) {
-                reg.stats_output->frequency_hz = (reg.time_window.size() - 1) / duration;
+                reg.stats_output->frequency_hz =
+                    static_cast<double>(reg.time_window.size() - 1) / duration;
             }
 
             if (!reg.dt_window.empty()) {
@@ -184,7 +185,8 @@ public:
             reg.stats_output->jitter = calculateJitter(reg.dt_window);
 
             if (reg.quality_output && duration > 0.0) {
-                reg.quality_output->effective_frequency_hz = reg.valid_frame_count / duration;
+                reg.quality_output->effective_frequency_hz =
+                    static_cast<double>(reg.valid_frame_count) / duration;
                 reg.valid_frame_count = 0;
             }
         }
