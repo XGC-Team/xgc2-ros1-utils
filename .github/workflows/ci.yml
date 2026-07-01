@@ -1,7 +1,10 @@
-name: build-debs
+name: ci
 
 on:
   push:
+    branches:
+      - noetic
+  pull_request:
     branches:
       - noetic
   workflow_dispatch:
@@ -51,12 +54,6 @@ jobs:
           - arch: arm64
             runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
-    env:
-      APT_REPO_HOST: ${{ secrets.APT_REPO_HOST }}
-      APT_REPO_PORT: ${{ secrets.APT_REPO_PORT }}
-      APT_REPO_SSH_KEY: ${{ secrets.APT_REPO_SSH_KEY }}
-      APT_REPO_KNOWN_HOSTS: ${{ secrets.APT_REPO_KNOWN_HOSTS }}
-
     steps:
       - uses: actions/checkout@v4
 
@@ -71,7 +68,3 @@ jobs:
         with:
           name: xgc2-ros1-utils-debs-${{ matrix.arch }}
           path: debs/*.deb
-
-      - name: Publish to self-hosted APT repository
-        if: ${{ env.APT_REPO_HOST != '' && env.APT_REPO_PORT != '' && env.APT_REPO_SSH_KEY != '' && env.APT_REPO_KNOWN_HOSTS != '' }}
-        run: .xgc2/scripts/publish_apt_repo.sh --deb-dir debs
