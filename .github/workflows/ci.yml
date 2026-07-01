@@ -44,7 +44,6 @@ jobs:
 
   build:
     name: package-tests-debs-${{ matrix.arch }}
-    needs: cpp-quality
     strategy:
       fail-fast: false
       matrix:
