@@ -5,7 +5,18 @@
 
 #include "ros1_utils/namespace_utils.h"
 #include "ros1_utils/param_utils.h"
+#include "ros1_utils/time_utils.h"
 #include "ros1_utils/topic_stats.h"
+
+namespace {
+
+struct TestSample {
+    double stamp_sec{0.0};
+    double period_sec{0.0};
+    bool received{false};
+};
+
+}  // namespace
 
 TEST(NamespaceUtilsTest, ExtractsRobotNameFromNamespace) {
     EXPECT_EQ(ros1_utils::nameFromNamespacePrefix("/swarm/uav12/controller", "/uav"), "uav12");
@@ -36,7 +47,43 @@ TEST(TopicStatsManagerTest, ComputesDtJitter) {
     EXPECT_NEAR(jitter, std::sqrt(2.0 / 300.0), 1e-12);
 }
 
+TEST(TimeUtilsTest, UsesNowWhenMessageStampIsZero) {
+    const ros::Time non_zero_stamp(12, 345);
+    EXPECT_EQ(ros1_utils::messageStampOrNow(non_zero_stamp), non_zero_stamp);
+
+    const ros::Time before = ros::Time::now();
+    const ros::Time fallback = ros1_utils::messageStampOrNow(ros::Time());
+    const ros::Time after = ros::Time::now();
+
+    EXPECT_LE(before, fallback);
+    EXPECT_LE(fallback, after);
+}
+
+TEST(TimeUtilsTest, ConvertsPositiveSecondsAndFallsBackForInvalidSeconds) {
+    const ros::Time stamp = ros1_utils::timeSecOrNow(12.25);
+    EXPECT_DOUBLE_EQ(stamp.toSec(), 12.25);
+
+    const ros::Time before = ros::Time::now();
+    const ros::Time fallback = ros1_utils::timeSecOrNow(0.0);
+    const ros::Time after = ros::Time::now();
+
+    EXPECT_LE(before, fallback);
+    EXPECT_LE(fallback, after);
+}
+
+TEST(TimeUtilsTest, UpdatesSamplePeriodFromPreviousStamp) {
+    TestSample sample;
+    ros1_utils::updateSamplePeriod(sample, 1.0);
+    EXPECT_DOUBLE_EQ(sample.period_sec, 0.0);
+
+    sample.received = true;
+    sample.stamp_sec = 1.0;
+    ros1_utils::updateSamplePeriod(sample, 1.25);
+    EXPECT_DOUBLE_EQ(sample.period_sec, 0.25);
+}
+
 int main(int argc, char** argv) {
+    ros::Time::init();
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

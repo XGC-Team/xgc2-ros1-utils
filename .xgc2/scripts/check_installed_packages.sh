@@ -8,6 +8,7 @@ dpkg -s ros-noetic-xgc2-ros1-utils >/dev/null
 rospack find ros1_utils >/dev/null
 test -f "${PREFIX}/include/ros1_utils/namespace_utils.h"
 test -f "${PREFIX}/include/ros1_utils/param_utils.h"
+test -f "${PREFIX}/include/ros1_utils/time_utils.h"
 test -f "${PREFIX}/include/ros1_utils/topic_stats.h"
 test ! -e "${PREFIX}/include/ros1_utils/loop_controller.h"
 test ! -e "${PREFIX}/include/ros1_utils/vrpn_topics.h"
@@ -66,6 +67,7 @@ cat > "${downstream_ws}/src/ros1_utils_downstream_smoke/src/main.cpp" <<'EOF'
 
 #include "ros1_utils/namespace_utils.h"
 #include "ros1_utils/param_utils.h"
+#include "ros1_utils/time_utils.h"
 #include "ros1_utils/topic_stats.h"
 
 int main(int argc, char** argv) {
@@ -88,6 +90,9 @@ int main(int argc, char** argv) {
     const std::deque<double> dt_window{0.1, 0.2, 0.3};
     if (ros1_utils::TopicStatsManager::calculateJitter(dt_window) <= 0.0) {
         return 3;
+    }
+    if (ros1_utils::samplePeriodSec(true, 1.0, 1.25) != 0.25) {
+        return 4;
     }
 
     return 0;
