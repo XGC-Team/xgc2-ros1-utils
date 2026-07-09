@@ -9,7 +9,7 @@ OUTPUT_DIR=""
 ROS_DISTRO="${ROS_DISTRO:-melodic}"
 
 product_version() {
-  awk -F': *' '/^version:[[:space:]]*/ {print $2; exit}' "${REPO_ROOT}/.xgc2/product.yml"
+  sed -n 's/^version:[[:space:]]*//p' "${REPO_ROOT}/.xgc2/product.yml" | head -n 1
 }
 
 VERSION="${PACKAGE_VERSION:-$(product_version)}"

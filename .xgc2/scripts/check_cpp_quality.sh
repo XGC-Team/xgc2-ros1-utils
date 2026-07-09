@@ -50,7 +50,13 @@ fi
 
 (
   cd "${REPO_ROOT}"
-  clang-format --dry-run --Werror "${FORMAT_FILES[@]}"
+  tmp_format_dir="$(mktemp -d)"
+  trap 'rm -rf "${tmp_format_dir}"' EXIT
+  for file in "${FORMAT_FILES[@]}"; do
+    mkdir -p "${tmp_format_dir}/$(dirname "${file}")"
+    clang-format "${file}" > "${tmp_format_dir}/${file}"
+    diff -u "${file}" "${tmp_format_dir}/${file}"
+  done
 )
 
 rm -rf "${WORK_DIR}/src" "${BUILD_DIR}" "${WORK_DIR}/devel"

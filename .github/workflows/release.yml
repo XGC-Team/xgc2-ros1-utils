@@ -40,7 +40,7 @@ jobs:
       - name: Validate release inputs
         run: |
           set -euo pipefail
-          product_version="$(awk -F': *' '/^version:[[:space:]]*/ {print $2; exit}' .xgc2/product.yml)"
+          product_version="$(sed -n 's/^version:[[:space:]]*//p' .xgc2/product.yml | head -n 1)"
           if [[ "${product_version}" != "${{ inputs.expected_version }}" ]]; then
             echo "product.yml version ${product_version} != expected_version ${{ inputs.expected_version }}" >&2
             exit 1
