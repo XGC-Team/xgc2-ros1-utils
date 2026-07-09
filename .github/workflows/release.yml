@@ -61,11 +61,11 @@ jobs:
 
       - name: Run C++ quality gate in Docker
         run: |
-          docker pull ros:noetic-ros-base-focal
+          docker pull ros:melodic-ros-base-bionic
           docker run --rm \
             -e DEBIAN_FRONTEND=noninteractive \
             -v "$GITHUB_WORKSPACE:/workspace/ros1-utils" \
-            ros:noetic-ros-base-focal \
+            ros:melodic-ros-base-bionic \
             bash -lc '
               set -euo pipefail
               export DEBIAN_FRONTEND=noninteractive
@@ -78,8 +78,8 @@ jobs:
                 git \
                 libeigen3-dev \
                 rsync \
-                ros-noetic-roscpp \
-                ros-noetic-rospack
+                ros-melodic-roscpp \
+                ros-melodic-rospack
 
               cd /workspace/ros1-utils
               .xgc2/scripts/check_cpp_quality.sh --work-dir /tmp/ros1-utils-cpp-quality

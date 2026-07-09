@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
-DOCKER_IMAGE="${DOCKER_IMAGE:-ros:noetic-ros-base-focal}"
+DOCKER_IMAGE="${DOCKER_IMAGE:-ros:melodic-ros-base-bionic}"
 WORK_DIR="${WORK_DIR:-${REPO_ROOT}/.work/docker}"
 OUTPUT_DIR="${OUTPUT_DIR:-${REPO_ROOT}/debs}"
 INSTALL_CHECK="${INSTALL_CHECK:-true}"
@@ -57,25 +57,25 @@ docker run --rm \
       git \
       libeigen3-dev \
       rsync \
-      ros-noetic-roscpp \
-      ros-noetic-rospack
+      ros-melodic-roscpp \
+      ros-melodic-rospack
 
     rm -rf /workspace/work/src /workspace/work/build /workspace/work/devel /workspace/work/install-root
     mkdir -p /workspace/work/src/ros1_utils
     rsync -a --delete /workspace/ros1-utils/ /workspace/work/src/ros1_utils/
 
     cd /workspace/work
-    source /opt/ros/noetic/setup.bash
+    source /opt/ros/melodic/setup.bash
 
     catkin_make run_tests_ros1_utils \
-      -DCMAKE_INSTALL_PREFIX=/opt/ros/noetic \
+      -DCMAKE_INSTALL_PREFIX=/opt/ros/melodic \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG" \
       -DCMAKE_C_FLAGS_RELEASE="-O3 -DNDEBUG"
     catkin_test_results
 
     DESTDIR=/workspace/work/install-root catkin_make install \
-      -DCMAKE_INSTALL_PREFIX=/opt/ros/noetic \
+      -DCMAKE_INSTALL_PREFIX=/opt/ros/melodic \
       -DCMAKE_BUILD_TYPE=Release \
       -DCATKIN_ENABLE_TESTING=OFF \
       -DCMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG" \
@@ -86,7 +86,7 @@ docker run --rm \
       --output-dir /workspace/out
 
     if [[ "${INSTALL_CHECK}" == "true" ]]; then
-      apt-get install -y /workspace/out/ros-noetic-xgc2-ros1-utils_*.deb
+      apt-get install -y /workspace/out/ros-melodic-xgc2-ros1-utils_*.deb
       /workspace/ros1-utils/.xgc2/scripts/check_installed_packages.sh
     fi
   '

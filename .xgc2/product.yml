@@ -6,20 +6,20 @@ kind: ros1-apt
 summary: ROS1-coupled parameter, namespace, and topic quality helpers for XGC2 runtime
   packages.
 ros:
-  distro: noetic
+  distro: melodic
   packages:
   - ros1_utils
 apt:
-  distribution: focal
+  distribution: bionic
   install:
-  - ros-noetic-xgc2-ros1-utils
+  - ros-melodic-xgc2-ros1-utils
   packages:
-  - ros-noetic-xgc2-ros1-utils
+  - ros-melodic-xgc2-ros1-utils
   depends: []
 usage:
   install: 'sudo apt update
 
-    sudo apt install ros-noetic-xgc2-ros1-utils
+    sudo apt install ros-melodic-xgc2-ros1-utils
 
     '
   smoke_test: 'rospack find ros1_utils
@@ -27,5 +27,5 @@ usage:
     '
 ownership:
   paths:
-  - /opt/ros/noetic/share/ros1_utils
-  - /opt/ros/noetic/include/ros1_utils
+  - /opt/ros/melodic/share/ros1_utils
+  - /opt/ros/melodic/include/ros1_utils

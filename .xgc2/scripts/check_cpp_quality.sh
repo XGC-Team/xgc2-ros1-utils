@@ -61,9 +61,9 @@ rsync -a --delete \
   --exclude debs \
   "${REPO_ROOT}/" "${WORK_DIR}/src/ros1_utils/"
 
-if [[ -f /opt/ros/noetic/setup.bash ]]; then
+if [[ -f /opt/ros/melodic/setup.bash ]]; then
   # shellcheck disable=SC1091
-  source /opt/ros/noetic/setup.bash
+  source /opt/ros/melodic/setup.bash
 fi
 
 cd "${WORK_DIR}"

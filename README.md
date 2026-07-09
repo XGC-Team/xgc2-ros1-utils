@@ -15,5 +15,5 @@ Install:
 
 ```bash
 sudo apt update
-sudo apt install ros-noetic-xgc2-ros1-utils
+sudo apt install ros-melodic-xgc2-ros1-utils
 ```

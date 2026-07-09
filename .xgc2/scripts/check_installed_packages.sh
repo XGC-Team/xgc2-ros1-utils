@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROS_DISTRO="${ROS_DISTRO:-noetic}"
+ROS_DISTRO="${ROS_DISTRO:-melodic}"
 PREFIX="/opt/ros/${ROS_DISTRO}"
 
-dpkg -s ros-noetic-xgc2-ros1-utils >/dev/null
+dpkg -s ros-melodic-xgc2-ros1-utils >/dev/null
 rospack find ros1_utils >/dev/null
 test -f "${PREFIX}/include/ros1_utils/namespace_utils.h"
 test -f "${PREFIX}/include/ros1_utils/param_utils.h"
