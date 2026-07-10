@@ -151,6 +151,7 @@ jobs:
       - name: Run package compliance/tests and build deb package in Docker
         if: ${{ inputs.trusted_ci_run_id == '' }}
         run: |
+          install -d build-manifests
           args=(
             --work-dir "$RUNNER_TEMP/ros1-utils-${{ matrix.arch }}"
             --output-dir "$GITHUB_WORKSPACE/debs"

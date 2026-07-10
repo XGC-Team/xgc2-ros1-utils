@@ -58,6 +58,7 @@ jobs:
 
       - name: Run package compliance/tests and build deb package in Docker
         run: |
+          install -d build-manifests
           .xgc2/scripts/build_debs_in_docker.sh \
             --work-dir "$RUNNER_TEMP/ros1-utils-${{ matrix.arch }}" \
             --output-dir "$GITHUB_WORKSPACE/debs"
