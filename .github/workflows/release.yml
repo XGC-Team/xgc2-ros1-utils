@@ -110,27 +110,17 @@ jobs:
 
       - name: Run C++ quality gate in Docker
         run: |
-          docker pull ros:noetic-ros-base-focal
-          docker run --rm \
-            -e XGC2_APT_OVERLAY_URL="${XGC2_APT_OVERLAY_URL:-}" \
-            -e DEBIAN_FRONTEND=noninteractive \
+          docker pull ghcr.io/xgc-team/xgc2-images/xgc2-build-focal-ros-noetic:1.0.0
+          docker run --rm --network none \
             -v "$GITHUB_WORKSPACE:/workspace/ros1-utils" \
-            ros:noetic-ros-base-focal \
+            ghcr.io/xgc-team/xgc2-images/xgc2-build-focal-ros-noetic:1.0.0 \
             bash -lc '
               set -euo pipefail
-              export DEBIAN_FRONTEND=noninteractive
-              apt-get update
-              apt-get install -y --no-install-recommends \
-                build-essential \
-                clang-format \
-                clang-tidy \
-                cmake \
-                git \
-                libeigen3-dev \
-                rsync \
-                ros-noetic-roscpp \
-                ros-noetic-rospack
-
+              for pkg in clang-format clang-tidy cmake libeigen3-dev \
+                ros-noetic-roscpp ros-noetic-rospack
+              do
+                dpkg -s "${pkg}" >/dev/null
+              done
               cd /workspace/ros1-utils
               .xgc2/scripts/check_cpp_quality.sh --work-dir /tmp/ros1-utils-cpp-quality
             '
