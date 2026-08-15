@@ -4,7 +4,7 @@ set -euo pipefail
 ROS_DISTRO="${ROS_DISTRO:-noetic}"
 PREFIX="/opt/ros/${ROS_DISTRO}"
 
-dpkg -s ros-noetic-xgc2-ros1-utils >/dev/null
+dpkg -s "ros-${ROS_DISTRO}-xgc2-ros1-utils" >/dev/null
 rospack find ros1_utils >/dev/null
 test -f "${PREFIX}/include/ros1_utils/namespace_utils.h"
 test -f "${PREFIX}/include/ros1_utils/param_utils.h"

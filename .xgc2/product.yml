@@ -1,19 +1,20 @@
 schema: xgc2.product.v1
 id: xgc2-ros1-utils
 name: XGC2 ROS1 Utils
-version: 1.1.1-8
+version: 1.1.1-9
 kind: ros1-apt
 summary: ROS1-coupled parameter, namespace, and topic quality helpers for XGC2 runtime
   packages.
 ros:
-  distro: noetic
+  distro: melodic,noetic
   packages:
   - ros1_utils
 apt:
-  distribution: focal
+  distribution: bionic,focal
   install:
   - ros-noetic-xgc2-ros1-utils
   packages:
+  - ros-melodic-xgc2-ros1-utils
   - ros-noetic-xgc2-ros1-utils
   depends: []
 usage:
@@ -31,4 +32,5 @@ ownership:
   - /opt/ros/noetic/include/ros1_utils
 release:
   apt_versions:
-    focal: 1.1.1-8
+    bionic: 1.1.1-9
+    focal: 1.1.1-9

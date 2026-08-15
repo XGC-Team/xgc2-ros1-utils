@@ -9,7 +9,8 @@ OUTPUT_DIR=""
 ROS_DISTRO="${ROS_DISTRO:-noetic}"
 
 product_version() {
-  awk -F': *' '/^version:[[:space:]]*/ {print $2; exit}' "${REPO_ROOT}/.xgc2/product.yml"
+  # mawk (bionic) does not implement POSIX [[:space:]].
+  awk '/^version:/ {print $2; exit}' "${REPO_ROOT}/.xgc2/product.yml"
 }
 
 VERSION="${PACKAGE_VERSION:-$(product_version)}"
@@ -41,7 +42,7 @@ if [[ -z "${INSTALL_ROOT}" || -z "${OUTPUT_DIR}" ]]; then
 fi
 
 ARCH="$(dpkg --print-architecture)"
-PACKAGE="ros-noetic-xgc2-ros1-utils"
+PACKAGE="ros-${ROS_DISTRO}-xgc2-ros1-utils"
 PREFIX="/opt/ros/${ROS_DISTRO}"
 PREFIX_ROOT="${INSTALL_ROOT}${PREFIX}"
 BUILD_DIR="$(mktemp -d)"
@@ -80,7 +81,7 @@ Section: misc
 Priority: optional
 Architecture: ${ARCH}
 Maintainer: XGC2 <apt@example.com>
-Depends: libeigen3-dev, ros-noetic-roscpp
+Depends: libeigen3-dev, ros-${ROS_DISTRO}-roscpp
 Description: XGC2 ROS1 utility headers
  Header package for ROS1-coupled parameter, namespace, and topic
  quality helpers used by active XGC2 runtime packages.

@@ -17,6 +17,10 @@ while [[ $# -gt 0 ]]; do
     --output-dir) OUTPUT_DIR="$2"; shift 2 ;;
     --skip-install-check) INSTALL_CHECK=false; shift ;;
     --network) shift 2 ;;
+    --platform)
+      DOCKER_PLATFORM="$2"
+      shift 2
+      ;;
     *)
       echo "unknown argument: $1" >&2
       exit 1
@@ -26,8 +30,14 @@ done
 
 mkdir -p "${WORK_DIR}" "${OUTPUT_DIR}"
 
-docker pull "${DOCKER_IMAGE}"
+docker_platform_args=()
+if [[ -n "${DOCKER_PLATFORM:-}" ]]; then
+  docker_platform_args=(--platform "${DOCKER_PLATFORM}")
+fi
+
+docker pull "${docker_platform_args[@]}" "${DOCKER_IMAGE}"
 docker run --rm --network none \
+  "${docker_platform_args[@]}" \
   -e XGC2_BUILD_GID="$(id -g)" \
   -e XGC2_BUILD_UID="$(id -u)" \
   -e DEBIAN_FRONTEND=noninteractive \
@@ -41,12 +51,13 @@ docker run --rm --network none \
     trap '\''build_status=$?; chown -R "${XGC2_BUILD_UID}:${XGC2_BUILD_GID}" /workspace/work /workspace/out; exit "${build_status}"'\'' EXIT
 
     export DEBIAN_FRONTEND=noninteractive
+    : "${ROS_DISTRO:?ROS_DISTRO must be set in the image}"
     for pkg in \
       cmake fakeroot dpkg-dev libeigen3-dev \
-      ros-noetic-roscpp ros-noetic-rospack
+      "ros-${ROS_DISTRO}-roscpp" "ros-${ROS_DISTRO}-rospack"
     do
       if ! dpkg -s "${pkg}" >/dev/null 2>&1; then
-        echo "image is missing ${pkg}; use xgc2-build-focal-ros-noetic" >&2
+        echo "image is missing ${pkg}" >&2
         exit 1
       fi
     done
@@ -59,18 +70,18 @@ docker run --rm --network none \
 
     cd /workspace/work
     set +u
-    source /opt/ros/noetic/setup.bash
+    source /opt/ros/${ROS_DISTRO}/setup.bash
     set -u
 
     catkin_make run_tests_ros1_utils \
-      -DCMAKE_INSTALL_PREFIX=/opt/ros/noetic \
+      -DCMAKE_INSTALL_PREFIX=/opt/ros/${ROS_DISTRO} \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG" \
       -DCMAKE_C_FLAGS_RELEASE="-O3 -DNDEBUG"
     catkin_test_results
 
     DESTDIR=/workspace/work/install-root catkin_make install \
-      -DCMAKE_INSTALL_PREFIX=/opt/ros/noetic \
+      -DCMAKE_INSTALL_PREFIX=/opt/ros/${ROS_DISTRO} \
       -DCMAKE_BUILD_TYPE=Release \
       -DCATKIN_ENABLE_TESTING=OFF \
       -DCMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG" \
@@ -83,7 +94,7 @@ docker run --rm --network none \
     if [[ "${INSTALL_CHECK}" == "true" ]]; then
       mapfile -t package_debs < <(
         find /workspace/out -maxdepth 1 -type f \
-          -name "ros-noetic-xgc2-ros1-utils_*.deb" -print | sort
+          -name "ros-${ROS_DISTRO}-xgc2-ros1-utils_*.deb" -print | sort
       )
       if [[ "${#package_debs[@]}" -ne 1 ]]; then
         echo "expected exactly one ros1-utils deb, found ${#package_debs[@]}" >&2
