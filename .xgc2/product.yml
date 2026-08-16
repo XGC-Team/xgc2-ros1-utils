@@ -12,13 +12,21 @@ ros:
 apt:
   distribution: bionic,focal
   install:
+  - ros-melodic-xgc2-ros1-utils
   - ros-noetic-xgc2-ros1-utils
+  package_distributions:
+    ros-melodic-xgc2-ros1-utils:
+    - bionic
+    ros-noetic-xgc2-ros1-utils:
+    - focal
   packages:
   - ros-melodic-xgc2-ros1-utils
   - ros-noetic-xgc2-ros1-utils
   depends: []
 usage:
   install: 'sudo apt update
+
+    sudo apt install ros-melodic-xgc2-ros1-utils
 
     sudo apt install ros-noetic-xgc2-ros1-utils
 
@@ -28,6 +36,8 @@ usage:
     '
 ownership:
   paths:
+  - /opt/ros/melodic/share/ros1_utils
+  - /opt/ros/melodic/include/ros1_utils
   - /opt/ros/noetic/share/ros1_utils
   - /opt/ros/noetic/include/ros1_utils
 release:
