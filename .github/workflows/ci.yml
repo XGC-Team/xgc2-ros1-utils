@@ -16,15 +16,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
   build:
-    name: package-tests-debs-${{ matrix.arch }}
+    name: package-tests-debs-${{ matrix.name }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - arch: amd64
+          - name: amd64-focal
+            arch: amd64
+            distribution: focal
             runner: ubuntu-latest
-          - arch: arm64
+            image: ghcr.io/xgc-team/xgc2-images/xgc2-build-focal-ros-noetic:1.0.0
+          - name: arm64-focal
+            arch: arm64
+            distribution: focal
             runner: ubuntu-24.04-arm
+            image: ghcr.io/xgc-team/xgc2-images/xgc2-build-focal-ros-noetic:1.0.0
+          - name: amd64-bionic
+            arch: amd64
+            distribution: bionic
+            runner: ubuntu-latest
+            image: ghcr.io/xgc-team/xgc2-images/xgc2-build-bionic-ros-melodic:1.0.0
+          - name: arm64-bionic
+            arch: arm64
+            distribution: bionic
+            runner: ubuntu-24.04-arm
+            image: ghcr.io/xgc-team/xgc2-images/xgc2-build-bionic-ros-melodic:1.0.0
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
@@ -52,7 +68,8 @@ jobs:
         run: |
           install -d .ci/build-manifests
           .xgc2/scripts/build_debs_in_docker.sh \
-            --work-dir "$RUNNER_TEMP/ros1-utils-${{ matrix.arch }}" \
+            --image "${{ matrix.image }}" \
+            --work-dir "$RUNNER_TEMP/ros1-utils-${{ matrix.name }}" \
             --output-dir "$GITHUB_WORKSPACE/debs"
 
       - name: Create trusted build manifest
@@ -63,7 +80,7 @@ jobs:
             --output-dir .ci/build-manifests \
             --product xgc2-ros1-utils \
             --product-version "$product_version" \
-            --distribution focal \
+            --distribution "${{ matrix.distribution }}" \
             --architecture "${{ matrix.arch }}" \
             --source-sha "$GITHUB_SHA" \
             --ci-run-id "$GITHUB_RUN_ID" \
@@ -73,7 +90,7 @@ jobs:
       - name: Upload deb artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: xgc2-ros1-utils-debs-${{ matrix.arch }}
+          name: xgc2-ros1-utils-debs-${{ matrix.name }}
           path: |
             debs/*.deb
             .ci/build-manifests/*.json
