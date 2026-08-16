@@ -20,6 +20,13 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+if [[ -n "${ROS_DISTRO:-}" && -f "/opt/ros/${ROS_DISTRO}/setup.bash" ]]; then
+  set +u
+  # shellcheck disable=SC1090
+  source "/opt/ros/${ROS_DISTRO}/setup.bash"
+  set -u
+fi
+
 require_tool() {
   local tool="$1"
   if ! command -v "${tool}" >/dev/null; then
