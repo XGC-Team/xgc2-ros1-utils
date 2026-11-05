@@ -81,7 +81,7 @@ Section: misc
 Priority: optional
 Architecture: ${ARCH}
 Maintainer: XGC2 <apt@example.com>
-Depends: libeigen3-dev, ros-${ROS_DISTRO}-roscpp
+Depends: libeigen3-dev, ros-${ROS_DISTRO}-roscpp, ros-${ROS_DISTRO}-rosgraph-msgs, libxgc2-state-machine-dev (>= 0.2.0-4~)
 Description: XGC2 ROS1 utility headers
  Header package for ROS1-coupled parameter, namespace, and topic
  quality helpers used by active XGC2 runtime packages.

@@ -10,6 +10,8 @@ test -f "${PREFIX}/include/ros1_utils/namespace_utils.h"
 test -f "${PREFIX}/include/ros1_utils/param_utils.h"
 test -f "${PREFIX}/include/ros1_utils/time_utils.h"
 test -f "${PREFIX}/include/ros1_utils/topic_stats.h"
+test -f "${PREFIX}/include/ros1_utils/queued_owner.h"
+test -f "${PREFIX}/include/ros1_utils/adaptive_owner_loop.h"
 test ! -e "${PREFIX}/include/ros1_utils/loop_controller.h"
 test ! -e "${PREFIX}/include/ros1_utils/vrpn_topics.h"
 test ! -e "${PREFIX}/include/controller_runtime/time/loop_controller.h"
@@ -42,7 +44,6 @@ cmake_minimum_required(VERSION 3.0.2)
 project(ros1_utils_downstream_smoke)
 
 find_package(catkin REQUIRED COMPONENTS
-  roscpp
   ros1_utils
 )
 
@@ -69,9 +70,28 @@ cat > "${downstream_ws}/src/ros1_utils_downstream_smoke/src/main.cpp" <<'EOF'
 #include "ros1_utils/param_utils.h"
 #include "ros1_utils/time_utils.h"
 #include "ros1_utils/topic_stats.h"
+#include "ros1_utils/queued_owner.h"
+#include "ros1_utils/adaptive_owner_loop.h"
+
+// Compile/link the public timer path without requiring a ROS master for this smoke.
+void timerSurface(ros::NodeHandle& nh) {
+    ros1_utils::DomainDeadline<int> timer(nh, [] {});
+    timer.arm(1, [] { return ros::Duration(1); });
+    timer.cancel();
+}
 
 int main(int argc, char** argv) {
     ros::init(argc, argv, "ros1_utils_downstream_smoke", ros::init_options::AnonymousName);
+    ros::CallbackQueue queue;
+    unsigned turns = 0;
+    ros1_utils::QueuedOwnerTurn turn(queue, [&] { ++turns; });
+    turn.request();
+    turn.request();
+    queue.callOne(ros::WallDuration(0));
+    turn.beginTurn();
+    turn.cancel();
+    if (turns != 1) return 5;
+    ros1_utils::AdaptiveOwnerLoop loop;
 
     if (ros1_utils::nameFromNamespacePrefix("/swarm/uav12/controller", "/uav") !=
         "uav12") {

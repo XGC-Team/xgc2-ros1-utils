@@ -1,7 +1,7 @@
 schema: xgc2.product.v1
 id: xgc2-ros1-utils
 name: XGC2 ROS1 Utils
-version: 1.1.1-10
+version: 1.1.1-11
 kind: ros1-apt
 summary: ROS1-coupled parameter, namespace, and topic quality helpers for XGC2 runtime
   packages.
@@ -22,7 +22,8 @@ apt:
   packages:
   - ros-melodic-xgc2-ros1-utils
   - ros-noetic-xgc2-ros1-utils
-  depends: []
+  depends:
+  - libxgc2-state-machine-dev (>= 0.2.0-4~)
 usage:
   install: 'sudo apt update
 
@@ -41,6 +42,10 @@ ownership:
   - /opt/ros/noetic/share/ros1_utils
   - /opt/ros/noetic/include/ros1_utils
 release:
+  requires:
+  - libxgc2-state-machine-dev
+  dependency_policy:
+    libxgc2-state-machine-dev: rebuild
   apt_versions:
-    bionic: 1.1.1-10
-    focal: 1.1.1-10
+    bionic: 1.1.1-11
+    focal: 1.1.1-11

@@ -49,17 +49,20 @@ jobs:
       - name: Run C++ quality gate in Docker
         run: |
           docker pull ghcr.io/xgc-team/xgc2-images/xgc2-build-focal-ros-noetic:1.0.0
-          docker run --rm --network none \
+          docker run --rm --network bridge \
+            -e XGC2_APT_SOURCE_URL -e XGC2_APT_OVERLAY_URL \
+            -e XGC2_APT_DISTRIBUTION -e XGC2_APT_COMPONENT -e XGC2_APT_LIST_FILE \
             -v "$GITHUB_WORKSPACE:/workspace/ros1-utils" \
             ghcr.io/xgc-team/xgc2-images/xgc2-build-focal-ros-noetic:1.0.0 \
             bash -lc '
               set -euo pipefail
               for pkg in clang-format clang-tidy cmake libeigen3-dev \
-                ros-noetic-roscpp ros-noetic-rospack
+                ros-noetic-roscpp ros-noetic-rospack ros-noetic-rosgraph-msgs ros-noetic-rostest
               do
                 dpkg -s "${pkg}" >/dev/null
               done
               cd /workspace/ros1-utils
+              .xgc2/scripts/install_published_products.sh
               .xgc2/scripts/check_cpp_quality.sh --work-dir /tmp/ros1-utils-cpp-quality
             '
 

@@ -9,6 +9,7 @@ DOCKER_IMAGE="${DOCKER_IMAGE:-ghcr.io/xgc-team/xgc2-images/xgc2-build-focal-ros-
 WORK_DIR="${WORK_DIR:-${REPO_ROOT}/.work/docker}"
 OUTPUT_DIR="${OUTPUT_DIR:-${REPO_ROOT}/debs}"
 INSTALL_CHECK="${INSTALL_CHECK:-true}"
+DOCKER_NETWORK="${DOCKER_NETWORK:-bridge}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -16,7 +17,7 @@ while [[ $# -gt 0 ]]; do
     --work-dir) WORK_DIR="$2"; shift 2 ;;
     --output-dir) OUTPUT_DIR="$2"; shift 2 ;;
     --skip-install-check) INSTALL_CHECK=false; shift ;;
-    --network) shift 2 ;;
+    --network) DOCKER_NETWORK="$2"; shift 2 ;;
     --platform)
       DOCKER_PLATFORM="$2"
       shift 2
@@ -36,12 +37,15 @@ if [[ -n "${DOCKER_PLATFORM:-}" ]]; then
 fi
 
 docker pull "${docker_platform_args[@]}" "${DOCKER_IMAGE}"
-docker run --rm --network none \
+docker run --rm --network "${DOCKER_NETWORK}" \
   "${docker_platform_args[@]}" \
   -e XGC2_BUILD_GID="$(id -g)" \
   -e XGC2_BUILD_UID="$(id -u)" \
   -e DEBIAN_FRONTEND=noninteractive \
   -e INSTALL_CHECK="${INSTALL_CHECK}" \
+  -e XGC2_APT_SOURCE_URL -e XGC2_APT_OVERLAY_URL \
+  -e XGC2_APT_DISTRIBUTION -e XGC2_APT_COMPONENT -e XGC2_APT_LIST_FILE \
+  -e ROS_HOSTNAME=localhost \
   -v "${REPO_ROOT}:/workspace/ros1-utils:ro" \
   -v "${WORK_DIR}:/workspace/work" \
   -v "${OUTPUT_DIR}:/workspace/out" \
@@ -54,13 +58,15 @@ docker run --rm --network none \
     : "${ROS_DISTRO:?ROS_DISTRO must be set in the image}"
     for pkg in \
       cmake fakeroot dpkg-dev libeigen3-dev \
-      "ros-${ROS_DISTRO}-roscpp" "ros-${ROS_DISTRO}-rospack"
+      "ros-${ROS_DISTRO}-roscpp" "ros-${ROS_DISTRO}-rospack" \
+      "ros-${ROS_DISTRO}-rosgraph-msgs" "ros-${ROS_DISTRO}-rostest"
     do
       if ! dpkg -s "${pkg}" >/dev/null 2>&1; then
         echo "image is missing ${pkg}" >&2
         exit 1
       fi
     done
+    /workspace/ros1-utils/.xgc2/scripts/install_published_products.sh
 
     rm -rf /workspace/work/src /workspace/work/build /workspace/work/devel /workspace/work/install-root
     mkdir -p /workspace/work/src/ros1_utils
